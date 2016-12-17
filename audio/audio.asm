@@ -229,6 +229,71 @@
         BCF			PORTE,2
     SONIDO2_WAIT
         GOTO        SONIDO2_WAIT
+
+    SONIDO3
+        CLRF 		TMR0
+        ; Habilito interrupcion por TMR0 y las globales
+        MOVLW		B'10100000'	
+        MOVWF		INTCON	
+        BANKSEL		PORTA
+        CALL		re														
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		fa											
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		re								
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		do					
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		LA					
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL		retardo												
+        CALL            mute
+        CLRF		INTCON		; Deshabilita las interrupciones	
+        BANKSEL		PORTA	
+        CLRF		TMR0
+        BCF			PORTE,2
+    SONIDO3_WAIT
+        GOTO        SONIDO3_WAIT
 			
     TESTNOTA
         CLRF 		TMR0
@@ -292,6 +357,6 @@
         ; Configuracion de retardo para conseguir buena apreciacion
         MOVWF		TEMPO2		
     LOOP
-        GOTO 	TESTNOTA
+        GOTO 	SONIDO3
 
 END 
