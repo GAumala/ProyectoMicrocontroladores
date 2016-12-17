@@ -138,7 +138,7 @@
         MOVWF	tempTMR0
         RETURN
     mi
-        MOVLW	0XA1
+        MOVLW	0XA5
         MOVWF	TMR0
         MOVWF	tempTMR0
         RETURN
