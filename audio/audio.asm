@@ -15,7 +15,6 @@
 	__CONFIG _CONFIG1, _CP_OFF&_WDT_OFF&_XT_OSC 
 
 	errorlevel	 -302	;Deshabilita mensajes de advertencia por cambio bancos	
-		
 	CBLOCK	0X020
 	DATO		; Señal de entrada por bit
 	VECES		; Cuantas veces se presenta la señal			
@@ -124,7 +123,7 @@
     ; NOTAS TIPO 2
 
     do
-        MOVLW	0X88
+        MOVLW	0X8C
         MOVWF	TMR0
         MOVWF	tempTMR0
         RETURN
