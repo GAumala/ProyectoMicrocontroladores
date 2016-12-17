@@ -1,46 +1,48 @@
 ;*******************************************************************************
-;	            ***ESCUELA SUPERIOR POLITECNICA DEL LITORAL***	               *
-;			                        ESPOL				                       *
-;	            FACULTAD DE INGENIERIA ELECTRICA Y COMPUTACION		           *
-;		                LABORATORIO DE MICROCONTROLADORES		               *
-;			                      PROYECTO 1P				                   *
-;			                 GENERADOR DE SONIDO 			                   *
-;		                    PROGRAMADOR: JOSE CUEVA			                   *	
+;	      ***ESCUELA SUPERIOR POLITECNICA DEL LITORAL***	               *
+;			          ESPOL			                       *
+;	      FACULTAD DE INGENIERIA ELECTRICA Y COMPUTACION	               *
+;		  LABORATORIO DE MICROCONTROLADORES	                       *
+;			       PROYECTO 1P		                       *
+;			   GENERADOR DE SONIDO 		                       *
+;	        PROGRAMADORES: JOSE CUEVA Y GABRIEL AUMALA		       *	
 ;*******************************************************************************
 
     LIST    p=16F887	;Tipo de microcontrolador
-	INCLUDE P16F887.INC	;Define los SFRs y bits del P16F887
+    INCLUDE P16F887.INC	;Define los SFRs y bits del P16F887
 
     ;Setea parámetros de configuración
-	__CONFIG _CONFIG1, _CP_OFF&_WDT_OFF&_XT_OSC 
+    __CONFIG _CONFIG1, _CP_OFF&_WDT_OFF&_XT_OSC 
 
-	errorlevel	 -302	;Deshabilita mensajes de advertencia por cambio bancos	
-	CBLOCK	0X020
-	DATO		; Señal de entrada por bit
-	VECES		; Cuantas veces se presenta la señal			
-	tempTMR0	;  variable para realizar retardo en el sonido
-	d1
-	d2	
-	d3			; Ayudan en subrutina de Retardo 1SEG
-	TEMPO		; Ayuda a mostrar una presentacion adecuada de la señal
-	TEMPO2		; Ayuda a mostrar una presentacion adecuada de la señal
-	RANDOM		; Genera un numero aleatorio
-	ALTO		; Bandera que me avisa si hay un cambio de nivel logico
+    ;Deshabilita mensajes de advertencia por cambio bancos	
+    errorlevel	 -302	
+
+    CBLOCK	0X020
+    DATO		; Señal de entrada por bit
+    VECES		; Cuantas veces se presenta la señal			
+    tempTMR0	        ;  variable para realizar retardo en el sonido
+    d1
+    d2	
+    d3			; Ayudan en subrutina de Retardo 1SEG
+    TEMPO		; Ayuda a mostrar una presentacion adecuada de la señal
+    TEMPO2		; Ayuda a mostrar una presentacion adecuada de la señal
+    RANDOM		; Genera un numero aleatorio
+    ALTO		; Bandera que me avisa si hay un cambio de nivel logico
     count3
     count2
     count
-	ENDC
+    ENDC
 
-;**********************************************************
+;******************************************************************************
 
     ;PROGRAMA
-        ORG		0x00		;Vector de RESET
-        GOTO	MAIN
-        ORG		0X04
-        GOTO	INTER
+    ORG		0x00		;Vector de RESET
+    GOTO	MAIN
+    ORG		0X04
+    GOTO	INTER
 
-    INTER 							; Interrupcion de sonido
-        BTFSC		INTCON,T0IF		; se desbordo TMR0?
+    INTER 	; Interrupcion de sonido
+        BTFSC		INTCON,T0IF  ; se desbordo TMR0?
         GOTO		INTTMR0			; Si
         RETFIE
 
@@ -48,46 +50,46 @@
 ; a una frecuencia determinada
 
     INTTMR0			; SRI usado para sonido	
-        BCF			INTCON,T0IF		; borro la bandera
-        BTFSC		PORTE,2			; hay un 1
-        GOTO		hacer0			; si
-        BSF			PORTE,2			; hacer 1
-        MOVF		tempTMR0,w		
-        MOVWF		TMR0			; cargo al TMR0
+        BCF	INTCON,T0IF     ; borro la bandera
+        BTFSC   PORTE,2	        ; hay un 1
+        GOTO    hacer0	        ; si
+        BSF     PORTE,2	        ; hacer 1
+        MOVF    tempTMR0,w		
+        MOVWF   TMR0	        ; cargo al TMR0
         RETFIE
     hacer0
-        BCF			PORTE,2			; hacer 0
-        MOVF		tempTMR0,w		
-        MOVWF		TMR0			; cargo TMR0
+        BCF     PORTE,2	        ; hacer 0
+        MOVF    tempTMR0,w		
+        MOVWF   TMR0	        ; cargo TMR0
         RETFIE
         
     retardo
            movlw 0x1
            movwf count3
-    ciclo3 movlw d'170' 			;1 (CI) ,donde M=20
+    ciclo3 movlw d'170'         ;1 (CI) ,donde M=20
            movwf count2		;1 (CI) 
-    ciclo2 movlw d'170'			;1 (CI),donde N=255
+    ciclo2 movlw d'170'	        ;1 (CI),donde N=255
            movwf count		;1 (CI)
-    ciclo decfsz count,f  	;1*(N-1) +2  (CI)
-          goto ciclo 		;2*(N-1)     (CI)
-          decfsz count2,f 	;1*(M-1) +2   (CI)
-          goto ciclo2  		;2*(M-1)     (CI)
-          decfsz count3,f
-          goto ciclo3 
+    ciclo  decfsz count,f  	;1*(N-1) +2  (CI)
+           goto ciclo 		;2*(N-1)     (CI)
+           decfsz count2,f 	;1*(M-1) +2   (CI)
+           goto ciclo2          ;2*(M-1)     (CI)
+           decfsz count3,f
+           goto ciclo3 
 
     return
 
     semiretardo
            movlw 0x1
            movwf count3
-    ciclo6 movlw d'90' 			;1 (CI) ,donde M=20
+    ciclo6 movlw d'90' 	        ;1 (CI) ,donde M=20
            movwf count2		;1 (CI) 
-    ciclo5 movlw d'90'			;1 (CI),donde N=255
+    ciclo5 movlw d'90'	        ;1 (CI),donde N=255
            movwf count		;1 (CI)
     ciclo4 decfsz count,f  	;1*(N-1) +2  (CI)
            goto ciclo4 		;2*(N-1)     (CI)
            decfsz count2,f 	;1*(M-1) +2   (CI)
-           goto ciclo5  		;2*(M-1)     (CI)
+           goto ciclo5          ;2*(M-1)     (CI)
            decfsz count3,f
            goto ciclo6 
 
@@ -184,19 +186,19 @@
         MOVWF	tempTMR0
         RETURN
 
-    SONIDO1						; Sonido para codificación RZ
+    SONIDO1	; Sonido para codificación RZ
         CLRF 		TMR0
         ; Habilito interrupcion por TMR0 y las globales
         MOVLW		B'10100000'	
         MOVWF		INTCON	
         BANKSEL		PORTA
-        CALL		sol			;carga la nota
+        CALL		sol	        ;carga la nota
         CALL		semiretardo	;suena la nota 1 seg
         CALL		mi
         CALL		semiretardo
-        CALL		do			;carga la nota
+        CALL		do	        ;carga la nota
         CALL		semiretardo	;suena la nota 1 seg
-        CLRF		INTCON		; Deshabilita las interrupciones	
+        CLRF		INTCON		; Deshabilita las interrupciones
         BANKSEL		PORTA	
         CLRF		TMR0
         BCF	PORTE,2
