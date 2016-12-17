@@ -126,7 +126,7 @@
         MOVWF	tempTMR0
         RETURN
     LA
-        MOVLW	0X72
+        MOVLW	0X76
         MOVWF	TMR0
         MOVWF	tempTMR0
         RETURN
@@ -236,7 +236,7 @@
         MOVLW		B'10100000'	
         MOVWF		INTCON	
         BANKSEL		PORTA
-        CALL		fa														
+        CALL		LA														
         CALL		retardo	
         CALL		retardo	
         CALL		retardo	
