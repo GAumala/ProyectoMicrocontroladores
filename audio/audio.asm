@@ -159,7 +159,7 @@
         MOVWF	tempTMR0
         RETURN
     fa
-        MOVLW	0XA6
+        MOVLW	0XAA
         MOVWF	TMR0
         MOVWF	tempTMR0
         RETURN
@@ -236,7 +236,7 @@
         MOVLW		B'10100000'	
         MOVWF		INTCON	
         BANKSEL		PORTA
-        CALL		mi														
+        CALL		fa														
         CALL		retardo	
         CALL		retardo	
         CALL		retardo	
@@ -292,6 +292,6 @@
         ; Configuracion de retardo para conseguir buena apreciacion
         MOVWF		TEMPO2		
     LOOP
-        GOTO 	SONIDO2
+        GOTO 	TESTNOTA
 
 END 
