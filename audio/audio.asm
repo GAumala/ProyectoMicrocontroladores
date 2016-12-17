@@ -202,7 +202,7 @@
         BANKSEL		PORTA	
         CLRF		TMR0
         BCF	PORTE,2
-        GOTO 		SONIDO1
+        return
 
     SONIDO2
         CLRF 		TMR0
@@ -229,8 +229,7 @@
         BANKSEL		PORTA	
         CLRF		TMR0
         BCF			PORTE,2
-    SONIDO2_WAIT
-        GOTO        SONIDO2_WAIT
+		return
 
     SONIDO3
         CLRF 		TMR0
@@ -294,8 +293,9 @@
         BANKSEL		PORTA	
         CLRF		TMR0
         BCF			PORTE,2
-    SONIDO3_WAIT
-        GOTO        SONIDO3_WAIT
+		return
+    ;SONIDO3_WAIT
+    ;    GOTO        SONIDO3_WAIT
 			
     TESTNOTA
         CLRF 		TMR0
@@ -326,7 +326,7 @@
         BANKSEL		PORTA	
         CLRF		TMR0
         BCF			PORTE,2
-        GOTO        LOOP
+;        GOTO        LOOP
 
     MAIN
     ;SETEO DE PUERTOS 
@@ -358,7 +358,18 @@
         MOVLW		.10
         ; Configuracion de retardo para conseguir buena apreciacion
         MOVWF		TEMPO2		
-    LOOP
-        GOTO 	SONIDO3
+
+
+   
+
+loop
+	BTFSC   PORTA,0
+	CALL    SONIDO3
+	BTFSC   PORTA,1
+	CALL    SONIDO1
+	BTFSC   PORTA,2
+	CALL	SONIDO2
+  	nop
+	goto loop
 
 END 

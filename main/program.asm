@@ -96,11 +96,18 @@
 		count2
 		count3
 		delay_1	
-		delay_2															;*
+		delay_2		
+		const_acelerar
+		numero1
+		numero2
+		flag_inter													;*
 	ENDC																		;*
 ;-----------------------------INICIO DEL PROGRAMA-------------------------------;*
 	ORG 	0x00			; Comienzo del programa (Vector de Reset)			;*
-	GOTO	MAIN																;*
+	GOTO	MAIN
+	Org 0x04 ; vector de interrupción
+	Goto inter ; salto a interrupción
+	org 0x05 ; continuación de programa																;*
 															;*
 ;-----------------------------------TABLAS--------------------------------------;*
 PISTA																		;*
@@ -233,9 +240,12 @@ PISTA2
 
 	bcf STATUS,0
 	rlf level, 1;	now we have made it to the next level
-	btfsc level, 7		;	have we reached the end of the game yet? if yes then:
-	goto volver_pantalla
-	decf speed, 1		;	if not, then decrement our speed variable by one (this speeds up the game)
+
+	;bsf PORTA,5
+	;call retardo
+	;btfsc level, 3		;	have we reached the end of the game yet? if yes then:
+	;goto volver_pantalla
+	;decf speed, 1		;	if not, then decrement our speed variable by one (this speeds up the game)
 	Movlw .1 ; Y ahora restablecer nuestra pc_track variable para que podamos
 	Movwf pc_track; Dibujar la pista de nuevo desde el principio
 	Retlw b'01111110'; Y volver a donde venimos con la primera parte de nuestra pista.													;*
@@ -327,17 +337,17 @@ MAIN																			;*
 	banksel	TRISD		; Selects bank containing register TRISB
 	clrf		TRISD		; All port B pins are configured as outputs   
 	banksel	TRISE		; Selects bank containing register TRISB
-    MOVLW b'011'
-	MOVWF		TRISE
-														;*
+    MOVLW b'111'
+	MOVWF		TRISE  ; selecciono el puerto e como salida
+						;*
 	BANKSEL		ANSEL															;*
 	CLRF		ANSEL			; configura puertos con entradas digitales		;*
 	CLRF		ANSELH			; configura puertos con entradas digitales		;*
 	banksel TRISA
     clrf		TRISA
     BANKSEL     TRISB
-    movlw b'11111111'
-    MOVF TRISB 
+	movlw       b'00000001'
+	movwf        TRISB
 	BANKSEL 	PORTB															;*
 
     movlw b'11111111'
@@ -346,11 +356,22 @@ MAIN																			;*
 	CLRF		PORTD
 	CLRF		PORTA
     CLRF        PORTE															;*
-															;*
+;------habilitar las interrupcion externa por bit 0 del puerto b
+
+	movlw b'10110000' ;habilita interrupción por Timer 0 y Global
+	; GIE=1 (BIT 7); habilita interrupciones globales
+	; TMR0IE=1 (BIT 5); habilita interrupciones por TMR0
+	;INTE=1 (BIT 4); habilita interrupciones por RB0
+	movwf INTCON
+
+																					;*
 
 	BCF			STATUS,RP0		;regresa al banco cero							;*
 ;--------------------------inicializacion de variables--------------------------;*
 inicio 
+	
+	call retardo
+	Bsf   PORTB,1
     movlw .0
     movwf ocho
 	movlw b'01111110'
@@ -397,12 +418,17 @@ inicio
 	clrf pc_track			;	clear pc_track (so we start from the top of this data)
     movlw d'01'				;	setup our level counter (start from level
 	movwf level				;	one of course...)
-	movlw d'5'				;	setup our game scrolling speed.
+	movlw d'20'				;	setup our game scrolling speed.
 	movwf speed				;	(the higher the number, the slower the scroll speed)
 	movlw d'50'				;	this prevents us from pushing a button to reset the game straight
 	movwf end_hold			;	away - which allows you to see your score beforehand
-movlw .255
-movwf ocho
+	movlw .255
+	movwf ocho
+	movlw .7
+	movwf const_acelerar
+	movlw .1
+	movwf numero1
+	movwf numero2
 	movlw b'11111011'
 	movwf	datocarro1
 	movlw b'11110001'
@@ -767,7 +793,7 @@ volver_pantalla
 				movwf PORTA
 				;call end_data
 
-				movlw b'00000000'				;	
+				;movlw b'00000000'				;	
 			
 				movwf PORTD					;	
 				call retardo				;	
@@ -781,7 +807,7 @@ volver_pantalla
 				movlw b'00000000'			;	
 				movwf PORTD				;	
 				call retardo					;	
-	 			movlw b'11111111'
+	 			;movlw b'11111111'
          		movwf PORTD
 
 ;____________________________________________________
@@ -791,14 +817,15 @@ volver_pantalla
 				movlw b'00000000'			;				
 				movwf PORTD			;	
 				call retardo					;	
-	 			movlw b'11111111'
+	 			;movlw b'11111111'
          		movwf PORTD
-				BSF PORTA,7
-				BCF PORTA,7
-
+				
+	
 goto inicio
 
 verificar_carro
+
+;-----verificar el boton de mover a la derecha
 pulsado
 	BTFSS	PORTE,1			; espero que presione boton
 	GOTO 	sig_boton
@@ -808,6 +835,7 @@ pulsado2
 	GOTO 	pulsado2
 	call	go_right
 sig_boton
+;-----verificar el boton de mover a la izquierda
 pulsado3
 	BTFSS	PORTE,2			; espero que presione boton
 	GOTO 	continuar
@@ -816,8 +844,17 @@ pulsado4
 	BTFSC 	PORTE,2			; espero a que suelte boton
 	GOTO 	pulsado4
 	call	go_left
+
 continuar
 	return					;	and finally, return back to the main program!
+
+inter
+	
+	
+	movf const_acelerar,w
+     movwf speed
+	bcf INTCON,INTF
+	retfie ; Return from interrupt routine
 
 
 go_right  ;me guarda los datos de la nueva posicion del carro a la derecha
@@ -878,7 +915,9 @@ check_colision
 
 
 chocado						;	We come here if we have hit a wall or we complete the game
-
+	call retardo
+	Bsf   PORTB,3
+	
 	goto volver_pantalla			;
 
 
