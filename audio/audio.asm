@@ -62,7 +62,7 @@
         RETFIE
         
     retardo
-            movlw 0x1
+           movlw 0x1
            movwf count3
     ciclo3 movlw d'255' 			;1 (CI) ,donde M=20
            movwf count2		;1 (CI) 
@@ -74,6 +74,22 @@
           goto ciclo2  		;2*(M-1)     (CI)
           decfsz count3,f
           goto ciclo3 
+
+    return
+
+    semiretardo
+           movlw 0x1
+           movwf count3
+    ciclo6 movlw d'190' 			;1 (CI) ,donde M=20
+           movwf count2		;1 (CI) 
+    ciclo5 movlw d'190'			;1 (CI),donde N=255
+           movwf count		;1 (CI)
+    ciclo4 decfsz count,f  	;1*(N-1) +2  (CI)
+           goto ciclo4 		;2*(N-1)     (CI)
+           decfsz count2,f 	;1*(M-1) +2   (CI)
+           goto ciclo5  		;2*(M-1)     (CI)
+           decfsz count3,f
+           goto ciclo6 
 
     return
      
@@ -162,6 +178,11 @@
         MOVWF	TMR0
         MOVWF	tempTMR0
         RETURN
+    mute
+        MOVLW	0XFE
+        MOVWF	TMR0
+        MOVWF	tempTMR0
+        RETURN
 
     SONIDO1						; Sonido para codificación RZ
         CLRF 		TMR0
@@ -203,28 +224,21 @@
         MOVWF		INTCON	
         BANKSEL		PORTA
         CALL		mi														
-        CALL		retardo												
-        CALL		retardo											
+        CALL		semiretardo												
         CALL		do											
-        CALL		retardo									
-        CALL		retardo								
+        CALL		semiretardo												
         CALL		mi								
-        CALL		retardo		
-        CALL		retardo			
+        CALL		semiretardo												
         CALL		do					
-        CALL		retardo		
-        CALL		retardo	
-        CALL		retardo	
-        CALL		retardo	
-        CALL		retardo	
-        CALL		retardo	
-        CALL		retardo	
-        CALL		retardo	
+        CALL		semiretardo												
+        CALL		semiretardo												
+        CALL            mute
         CLRF		INTCON		; Deshabilita las interrupciones	
         BANKSEL		PORTA	
         CLRF		TMR0
         BCF			PORTE,2
-        GOTO        LOOP
+    SONIDO2_WAIT
+        GOTO        SONIDO2_WAIT
 			
     TESTNOTA
         CLRF 		TMR0
@@ -232,7 +246,7 @@
         MOVLW		B'10100000'	
         MOVWF		INTCON	
         BANKSEL		PORTA
-        CALL		re														
+        CALL		mi														
         CALL		retardo	
         CALL		retardo	
         CALL		retardo	
@@ -288,6 +302,6 @@
         ; Configuracion de retardo para conseguir buena apreciacion
         MOVWF		TEMPO2		
     LOOP
-        GOTO 	TESTNOTA
+        GOTO 	SONIDO2
 
 END 
