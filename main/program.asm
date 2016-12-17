@@ -1,3 +1,4 @@
+
 ;**************************************************************************;
 ;			***ESCUELA SUPERIOR POLITECNICA DEL LITORAL***					;
 ;								ESPOL										;
@@ -90,8 +91,10 @@
 		speed				;	we set the initial speed in the setup routine (this determines how fast the car is going)
 		end_hold			;	used to prevent us from pushing a button at the end for a specified amount of time
 						;	end of general purpose registers				;*
-		
 
+		count
+		count2
+		count3
 		delay_1	
 		delay_2															;*
 	ENDC																		;*
@@ -105,7 +108,7 @@ PISTA																		;*
 	ADDWF   PCL,F																;*
 	retlw b'01111110'; Ahora cada vez que se llama a esta rutina, agarraremos la
 	retlw b'01111110'; Siguiente byte sucesivo de datos!
-	retlw b'11111111'; Esto significa que la pantalla se desplazar√° de arriba a abajo
+	retlw b'11111111'; Esto significa que la pantalla se desplazar· de arriba a abajo
 	retlw b'01111110'
 	retlw b'01111110'
 	retlw b'11111111'
@@ -124,7 +127,7 @@ PISTA																		;*
 
 	retlw b'01111110'; Ahora cada vez que se llama a esta rutina, agarraremos la
 	retlw b'11111111'; Siguiente byte sucesivo de datos!
-	retlw b'01111110'; Esto significa que la pantalla se desplazar√° de arriba a abajo
+	retlw b'01111110'; Esto significa que la pantalla se desplazar· de arriba a abajo
 	retlw b'01111110'
 	retlw b'11111111'
 	retlw b'01111110'
@@ -136,7 +139,7 @@ PISTA																		;*
 ;Carros  --	(desp=24)															;*
 	retlw b'01111110'; Ahora cada vez que se llama a esta rutina, agarraremos la
 	retlw b'11111111'; Siguiente byte sucesivo de datos!
-	retlw b'01111110'; Esto significa que la pantalla se desplazar√° de arriba a abajo
+	retlw b'01111110'; Esto significa que la pantalla se desplazar· de arriba a abajo
 	retlw b'01111110'
 	retlw b'11111111'
 	retlw b'01111110'
@@ -191,14 +194,14 @@ PISTA2
 	;carros (01)(10)	(desp=32)
 	retlw b'01111110'; Ahora cada vez que se llama a esta rutina, agarraremos la
 	retlw b'11111111'; Siguiente byte sucesivo de datos!
-	retlw b'01111110'; Esto significa que la pantalla se desplazar√° de arriba a abajo
+	retlw b'01111110'; Esto significa que la pantalla se desplazar· de arriba a abajo
 	retlw b'01111110'
 	retlw b'11111111'
 	retlw b'01111110'
 	retlw b'01111110'
 	retlw b'11111111'
 
-
+;esta es la salida del segundo carro a la izquierda
 	retlw b'00101110'
 	retlw b'01011110'
 	retlw b'10001111'
@@ -218,26 +221,102 @@ PISTA2
 	retlw b'01111110'; Siguiente byte sucesivo de datos!
 	retlw b'01111110'
 	retlw b'11111111'; 
-	retlw b'01111110'
+	;retlw b'01111110'
 	
-
 ;esta es la salida del segundo carro por derecha
-	retlw b'01111110'
+	;retlw b'01111110'
 	retlw b'11110101'
 	retlw b'01111010'	
 	retlw b'11110001'
 	retlw b'11111011'
 
 
-
+	bcf STATUS,0
 	rlf level, 1;	now we have made it to the next level
 	btfsc level, 7		;	have we reached the end of the game yet? if yes then:
-
+	goto volver_pantalla
 	decf speed, 1		;	if not, then decrement our speed variable by one (this speeds up the game)
 	Movlw .1 ; Y ahora restablecer nuestra pc_track variable para que podamos
 	Movwf pc_track; Dibujar la pista de nuevo desde el principio
 	Retlw b'01111110'; Y volver a donde venimos con la primera parte de nuestra pista.													;*
 
+end_data				
+	incf pc_end_graphics, f			;	increment pc_end_graphics by one and then
+	movf pc_end_graphics, w			;	move it into our working register THEN
+	ADDWF   PCL,F					;	add this number to our program counter
+								;	skip one step...
+; one									depending on what we have in our program counter
+	retlw b'00011000'				;	will determine which number (or graphic) we
+	retlw b'00111000'				;	draw on the screen
+	retlw b'01111000'
+	retlw b'00011000'
+	retlw b'00011000'
+	retlw b'00011000'
+	retlw b'01111110'
+	retlw b'01111110'
+; two
+	retlw b'00111000'				;	this draws the number 1
+	retlw b'01111100'
+	retlw b'11000110'
+	retlw b'00001100'
+	retlw b'00011000'
+	retlw b'00110000'
+	retlw b'01111110'
+	retlw b'11111110'
+; three
+	retlw b'00111100'				;	this draws the number 3
+	retlw b'01111110'
+	retlw b'00000110'
+	retlw b'00111110'
+	retlw b'00111110'
+	retlw b'00000110'
+	retlw b'01111110'
+	retlw b'00111100'
+; four
+	retlw b'01100110'				;	this draws the number 4
+	retlw b'01100110'
+	retlw b'01100110'
+	retlw b'01100110'
+	retlw b'01111110'
+	retlw b'00111110'
+	retlw b'00000110'
+	retlw b'00000110'
+; five
+	retlw b'01111110'				;	this draws the number 5
+	retlw b'01111110'
+	retlw b'01100000'
+	retlw b'01111100'
+	retlw b'01111110'
+	retlw b'00000110'
+	retlw b'01111110'
+	retlw b'01111100'
+; six
+	retlw b'00111110'				;	this draws the number 6
+	retlw b'01111110'
+	retlw b'01100000'
+	retlw b'01111100'
+	retlw b'01111110'
+	retlw b'01100110'
+	retlw b'01111110'
+	retlw b'00111100'
+; seven
+	retlw b'01111111'				;	this draws the number 7
+	retlw b'01111111'
+	retlw b'00000011'
+	retlw b'00000110'
+	retlw b'00001100'
+	retlw b'00011000'
+	retlw b'00110000'
+	retlw b'01100000'
+; end
+	retlw b'00111100'				; this draws a smiley face to say we have finished!
+	retlw b'01000010'
+	retlw b'10100101'
+	retlw b'10000001'
+	retlw b'10100101'
+	retlw b'10011001'
+	retlw b'01000010'
+	retlw b'00111100'
 
 
 ;*******************************CODIGO PRINCIPAL**********************************
@@ -256,11 +335,14 @@ MAIN																			;*
 	CLRF		ANSELH			; configura puertos con entradas digitales		;*
 	banksel TRISA
     clrf		TRISA
+    BANKSEL     TRISB
+    movlw b'11111111'
+    MOVF TRISB 
 	BANKSEL 	PORTB															;*
-	MOVF		PORTB,F	
+
     movlw b'11111111'
     movwf       PORTC															;*
-															;*
+	CLRF        PORTB														;*
 	CLRF		PORTD
 	CLRF		PORTA
     CLRF        PORTE															;*
@@ -315,11 +397,12 @@ inicio
 	clrf pc_track			;	clear pc_track (so we start from the top of this data)
     movlw d'01'				;	setup our level counter (start from level
 	movwf level				;	one of course...)
-	movlw d'10'				;	setup our game scrolling speed.
+	movlw d'5'				;	setup our game scrolling speed.
 	movwf speed				;	(the higher the number, the slower the scroll speed)
 	movlw d'50'				;	this prevents us from pushing a button to reset the game straight
 	movwf end_hold			;	away - which allows you to see your score beforehand
-
+movlw .255
+movwf ocho
 	movlw b'11111011'
 	movwf	datocarro1
 	movlw b'11110001'
@@ -352,7 +435,7 @@ dibujar
           
           		 movlw b'11111111'
            		movwf PORTC
-
+;...................................................................................
 				movlw b'00000001'
 				movwf PORTA
                 
@@ -363,10 +446,10 @@ dibujar
           
          		movlw b'11111111'
          	    movwf PORTC	
-									
+;...................................................................................									
 				movlw b'00000010'
 				movwf PORTA
-                movlw b'00000010'
+                ;movlw b'00000010'
 				movf vram_3, w	
 
 		;	
@@ -374,54 +457,54 @@ dibujar
 				call delay						;
 	 			movlw b'11111111'
        	  		  movwf PORTC
-										
+;...................................................................................										
 				movlw b'00000011'
 				movwf PORTA
-                movlw b'00000100'
+                ;movlw b'00000100'
 				movf vram_4, w					;
 				movwf PORTC				
 				call delay						;
-	            MOVF  desp,W								
-				CALL  PISTA				
-				movwf PORTC	
+	            ;MOVF  desp,W								
+				;CALL  PISTA				
+				;movwf PORTC	
  				movlw b'11111111'
         	   movwf PORTC
 	
-							
+;...................................................................................							
 				movlw b'00000100'
 				movwf PORTA
-               movlw b'00001000'
+               ;movlw b'00001000'
 				movf vram_5, w	
 				movwf PORTC		
 				call delay						;	
  				movlw b'11111111'
           		 movwf PORTC
-										
+;...................................................................................										
 				movlw b'00000101'
 				movwf PORTA
-                  movlw b'00010000'
+                ;movlw b'00010000'
                 
 				movf vram_6, w				
 				movwf PORTC							;
 				call delay						;
 	 			movlw b'11111111'
          		movwf PORTC
-										
+;...................................................................................										
 				movlw b'00000110'
 				movwf PORTA
-				movlw b'00100000'
+				;movlw b'00100000'
 				movf vram_7, w					;			
 				movwf PORTC					;	
 				call delay						;	
 	 			movlw b'11111111'
          		movwf PORTC	
-										
+;...................................................................................										
 				movlw b'00000111'
 				movwf PORTA
-				movlw b'01000000'
+				;movlw b'01000000'
 				movf vram_8, w					;			
 				movwf PORTC						;
-				call delay1ms						;
+				call delay						;
 	 			movlw b'11111111'
          		movwf PORTC
 									
@@ -433,12 +516,9 @@ dibujar
 				movlw b'00001000'
 				movwf PORTA
 
-				movf ocho,w   ;la variable tiene 0, me servira para mostrar el carro
- 				call forma_carro ;busco en la tabla la forma del carro dependiendo de "ocho"
-                movwf PORTD
-                call delay
 
-				movlw b'10000000'
+
+				;movlw b'10000000'
 				movf vram_9, w					;			
 				movwf PORTD		
 				call delay					;	
@@ -450,13 +530,9 @@ dibujar
             	movlw b'00001001'
 				movwf PORTA
 
-				incf ocho ;incremento la variable para asi moverme entre la tabla
-				movf ocho,w
- 				call forma_carro
-                movwf PORTD
-                call delay
 
-				movlw b'00000001'
+
+				;movlw b'00000001'
 				movf vram_10, w					;			
 				movwf PORTD	
 				call delay					;	
@@ -466,13 +542,9 @@ dibujar
             	movlw b'00001010'
 				movwf PORTA
 
-                incf ocho 
-				movf ocho,w
- 				call forma_carro
-                movwf PORTD
-				call delay
 
-				movlw b'00000010'
+
+				;movlw b'00000010'
 				movf vram_11, w		
 				movwf PORTD		;	
 				call delay					;	
@@ -482,13 +554,9 @@ dibujar
             	movlw b'00001011'
 				movwf PORTA
 
-                incf ocho 
-				movf ocho,w
- 				call forma_carro
-                movwf PORTD
-				call delay
 
-				movlw b'00000100'
+
+				;movlw b'00000100'
 				movf vram_12, w					;			
 				movwf PORTD			;	
 				call delay					;	
@@ -503,7 +571,7 @@ dibujar
                 movwf PORTD
 				call delay
 
-				movlw b'00001000'
+				;movlw b'00001000'
 				movf vram_13, w					;			
 				movwf PORTD				;	
 				call delay					;	
@@ -518,7 +586,7 @@ dibujar
                 movwf PORTD
 				call delay
 
-				movlw b'00000001'
+				;movlw b'00000001'
 				movf vram_14, w					;	
 			
 				movwf PORTD					;	
@@ -535,7 +603,7 @@ dibujar
                 movwf PORTD
 				call delay
 
-				movlw b'01000000'
+				;movlw b'01000000'
 				movf vram_15, w					;	
 				movwf PORTD				;	
 				call delay					;	
@@ -549,8 +617,8 @@ dibujar
 				movf	datocarro4,w
                 movwf PORTD
 				call delay
-                movlw .0
-                movwf ocho   ; importante (reseteo el valor de la constante
+                ;movlw .0
+                ;movwf ocho   ; importante (reseteo el valor de la constante
 
 				movlw b'10000000'
 				movf vram_16, w					;				
@@ -564,6 +632,171 @@ dibujar
               decfsz repeat_frame	;	then decrease repeat_frame by one, 
 		       goto lazo			;	if its not zero then draw it all again!
 			   return
+
+
+volver_pantalla
+;--------------------PANTALLA CON ENCENDIDO LOS LED-----
+				movlw b'00000000'
+				movwf PORTA
+
+				movlw b'00000000'
+       				;	
+				movwf PORTC				;	copia el codigo para prender las luces en el puerto C
+				call retardo			;	Call the delay (to hold that one row ON for a split second)
+          		movlw b'11111111'
+         	    movwf PORTC	         
+ 
+;..................................................
+				movlw b'00000001'
+				movwf PORTA
+
+				movlw b'00000000'
+       				;	
+				movwf PORTC				;	copia lo que en la pista en el puerto C
+				call retardo			;	Call the delay (to hold that one row ON for a split second)       
+         		movlw b'11111111'
+         	    movwf PORTC	
+
+;...................................................									
+				movlw b'00000010'
+				movwf PORTA
+
+				movlw b'00000000'
+				movwf PORTC				;	copia lo que en la pista en el puerto C				;					;	
+				call retardo						;
+	 			movlw b'11111111'
+       	  		  movwf PORTC
+;.....................................										
+				movlw b'00000011'
+				movwf PORTA
+
+				movlw b'00000000'
+
+				movwf PORTC				
+				call retardo						;
+
+ 				movlw b'11111111'
+        	   movwf PORTC
+	
+;.........................							
+				movlw b'00000100'
+				movwf PORTA
+
+				movlw b'00000000'
+
+				movwf PORTC		
+				call retardo						;	
+ 				movlw b'11111111'
+          		 movwf PORTC
+;.....................................										
+				movlw b'00000101'
+				movwf PORTA
+
+				movlw b'00000000'		
+				movwf PORTC							;
+				call retardo						;
+	 			movlw b'11111111'
+         		movwf PORTC
+;...................................										
+				movlw b'00000110'
+				movwf PORTA
+	
+				movlw b'00000000'				;			
+				movwf PORTC					;	
+				call retardo						;	
+	 			movlw b'11111111'
+         		movwf PORTC	
+										
+				movlw b'00000111'
+				movwf PORTA
+				movlw b'00000000'				;			
+				movwf PORTC						;
+				call retardo						;
+	 			movlw b'11111111'
+         		movwf PORTC
+
+;-------------------------------------------------------------------------;*		
+				movlw b'00001000'
+				movwf PORTA
+
+				movlw b'00000000'				;			
+				movwf PORTD		
+				call retardo					;	
+	 			movlw b'11111111'
+         		movwf PORTD
+
+                
+  ;________________________________________
+            	movlw b'00001001'
+				movwf PORTA
+
+				movlw b'00000000'			;			
+				movwf PORTD	
+				call retardo					;	
+	 			movlw b'11111111'
+         		movwf PORTD
+;_________________________________________
+            	movlw b'00001010'
+				movwf PORTA
+
+				movlw b'00000000'	
+				movwf PORTD		;	
+				call retardo					;	
+	 			movlw b'11111111'
+         		movwf PORTD
+;____________________________________________
+            	movlw b'00001011'
+				movwf PORTA
+
+				movlw b'00000000'		;			
+				movwf PORTD			;	
+				call retardo					;	
+	 			movlw b'11111111'
+         		movwf PORTD
+;_________________________________________________
+            	movlw b'00001100'
+				movwf PORTA
+
+				movlw b'00000000'				;			
+				movwf PORTD				;	
+				call retardo					;	
+	 			movlw b'11111111'
+         		movwf PORTD
+;_______________________________________________
+            	movlw b'00001101'
+				movwf PORTA
+				;call end_data
+
+				movlw b'00000000'				;	
+			
+				movwf PORTD					;	
+				call retardo				;	
+
+	 			movlw b'11111111'
+         		movwf PORTD
+;_______________________________________________
+            	movlw b'00001110'
+				movwf PORTA
+				;call end_data
+				movlw b'00000000'			;	
+				movwf PORTD				;	
+				call retardo					;	
+	 			movlw b'11111111'
+         		movwf PORTD
+
+;____________________________________________________
+            	movlw b'10001111'
+				movwf PORTA
+				;call end_data				
+				movlw b'00000000'			;				
+				movwf PORTD			;	
+				call retardo					;	
+	 			movlw b'11111111'
+         		movwf PORTD
+				BSF PORTA,7
+				BCF PORTA,7
+
+goto inicio
 
 verificar_carro
 pulsado
@@ -646,7 +879,7 @@ check_colision
 
 chocado						;	We come here if we have hit a wall or we complete the game
 
-	goto inicio				;
+	goto volver_pantalla			;
 
 
 fill_vram
@@ -759,5 +992,22 @@ delay									;	This first delay is a rather fast one.
 			goto again					;	once counta and countb have reached zero
 	return								;	it will return to the main program
 		
+retardo
+ 		movlw 0x1
+       movwf count3
+ciclo3 movlw d'100' 			;1 (CI) ,donde M=20
+       movwf count2		;1 (CI) 
+ciclo2 movlw d'100'			;1 (CI),donde N=255
+       movwf count		;1 (CI)
+ciclo decfsz count,f  	;1*(N-1) +2  (CI)
+      goto ciclo 		;2*(N-1)     (CI)
+      decfsz count2,f 	;1*(M-1) +2   (CI)
+      goto ciclo2  		;2*(M-1)     (CI)
+      decfsz count3,f
+      goto ciclo3 
 
-	END				
+return
+
+	END	
+;_-------------
+			
