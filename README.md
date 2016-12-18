@@ -31,6 +31,8 @@ display.
 
 ## Programa del PIC16F887
 
+![Diseño Proteus](circuito_proteus.png)
+
 ## Conclusiones
 
 - En proyectos de mayor complejidad, usar más de un pic ayuda bastante a dividir
