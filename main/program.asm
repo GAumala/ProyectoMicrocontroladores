@@ -91,7 +91,7 @@
 		speed				;	we set the initial speed in the setup routine (this determines how fast the car is going)
 		end_hold			;	used to prevent us from pushing a button at the end for a specified amount of time
 						;	end of general purpose registers				;*
-
+		count_carro
 		count
 		count2
 		count3
@@ -100,7 +100,9 @@
 		const_acelerar
 		numero1
 		numero2
-		flag_inter													;*
+		flag_inter
+		count_vida
+		speed2   ; guardamos las velocidad con que estamos trabajando													;*
 	ENDC																		;*
 ;-----------------------------INICIO DEL PROGRAMA-------------------------------;*
 	ORG 	0x00			; Comienzo del programa (Vector de Reset)			;*
@@ -110,89 +112,7 @@
 	org 0x05 ; continuación de programa																;*
 															;*
 ;-----------------------------------TABLAS--------------------------------------;*
-PISTA																		;*
-															;*
-	ADDWF   PCL,F																;*
-	retlw b'01111110'; Ahora cada vez que se llama a esta rutina, agarraremos la
-	retlw b'01111110'; Siguiente byte sucesivo de datos!
-	retlw b'11111111'; Esto significa que la pantalla se desplazará de arriba a abajo
-	retlw b'01111110'
-	retlw b'01111110'
-	retlw b'11111111'
-	retlw b'01111110'
-	retlw b'01111110' 
-	
-    retlw b'01111110'
-	retlw b'01111110'
-	retlw b'11111111'
-	retlw b'01111110'
-	retlw b'01111010'
-	retlw b'11110001'
-	retlw b'01111010'
-	retlw b'01110100' 
-;Carros  --	(desp=8)															;*
 
-	retlw b'01111110'; Ahora cada vez que se llama a esta rutina, agarraremos la
-	retlw b'11111111'; Siguiente byte sucesivo de datos!
-	retlw b'01111110'; Esto significa que la pantalla se desplazará de arriba a abajo
-	retlw b'01111110'
-	retlw b'11111111'
-	retlw b'01111110'
-	retlw b'01111110'
-	retlw b'11111111'
-																;*
-;carros (10)(01) (desp=16)															;*
-
-;Carros  --	(desp=24)															;*
-	retlw b'01111110'; Ahora cada vez que se llama a esta rutina, agarraremos la
-	retlw b'11111111'; Siguiente byte sucesivo de datos!
-	retlw b'01111110'; Esto significa que la pantalla se desplazará de arriba a abajo
-	retlw b'01111110'
-	retlw b'11111111'
-	retlw b'01111110'
-	retlw b'01111110'
-	retlw b'11111111'
-																					;*
-;carros (01)(10)	(desp=32)
-	retlw b'01111110'
-	retlw b'01111110'
-	retlw b'11111111'
-	retlw b'01111110'
-	retlw b'01011110'
-	retlw b'10001111'
-	retlw b'01011110'
-	retlw b'00101110'
-
-forma_carro
-    ADDWF   PCL,F	
-    retlw b'11111111'
-	retlw b'11111111'
-	retlw b'11111111'
-	retlw b'11111111'
-	retlw b'11111011'
-	retlw b'11110001'
-	retlw b'11111011'
-	retlw b'11110101' 
-forma_carro_right
-    ADDWF   PCL,F	
-    retlw b'11111111'
-	retlw b'11111111'
-	retlw b'11111111'
-	retlw b'11111111'
-	retlw b'11111011'
-	retlw b'11110001'
-	retlw b'11111011'
-	retlw b'11110101' 
-forma_carro_left
-    ADDWF   PCL,F	
-	retlw b'11111111'
-	retlw b'11111111'
-	retlw b'11111111'
-	retlw b'11111111'
-	retlw b'11011111'
-	retlw b'10001111'
-	retlw b'11011111'
-	retlw b'10101111' 
 PISTA2
 	incf pc_track, f		;	increment pc_track by one and then
 	movf pc_track, w	
@@ -238,95 +158,16 @@ PISTA2
 	retlw b'11111011'
 
 
-	bcf STATUS,0
-	rlf level, 1;	now we have made it to the next level
+	decfsz count_carro
+	goto $+2
 
-	;bsf PORTA,5
-	;call retardo
-	;btfsc level, 3		;	have we reached the end of the game yet? if yes then:
-	;goto volver_pantalla
-	;decf speed, 1		;	if not, then decrement our speed variable by one (this speeds up the game)
+	call aumentar_nivel
+
 	Movlw .1 ; Y ahora restablecer nuestra pc_track variable para que podamos
 	Movwf pc_track; Dibujar la pista de nuevo desde el principio
 	Retlw b'01111110'; Y volver a donde venimos con la primera parte de nuestra pista.													;*
 
-end_data				
-	incf pc_end_graphics, f			;	increment pc_end_graphics by one and then
-	movf pc_end_graphics, w			;	move it into our working register THEN
-	ADDWF   PCL,F					;	add this number to our program counter
-								;	skip one step...
-; one									depending on what we have in our program counter
-	retlw b'00011000'				;	will determine which number (or graphic) we
-	retlw b'00111000'				;	draw on the screen
-	retlw b'01111000'
-	retlw b'00011000'
-	retlw b'00011000'
-	retlw b'00011000'
-	retlw b'01111110'
-	retlw b'01111110'
-; two
-	retlw b'00111000'				;	this draws the number 1
-	retlw b'01111100'
-	retlw b'11000110'
-	retlw b'00001100'
-	retlw b'00011000'
-	retlw b'00110000'
-	retlw b'01111110'
-	retlw b'11111110'
-; three
-	retlw b'00111100'				;	this draws the number 3
-	retlw b'01111110'
-	retlw b'00000110'
-	retlw b'00111110'
-	retlw b'00111110'
-	retlw b'00000110'
-	retlw b'01111110'
-	retlw b'00111100'
-; four
-	retlw b'01100110'				;	this draws the number 4
-	retlw b'01100110'
-	retlw b'01100110'
-	retlw b'01100110'
-	retlw b'01111110'
-	retlw b'00111110'
-	retlw b'00000110'
-	retlw b'00000110'
-; five
-	retlw b'01111110'				;	this draws the number 5
-	retlw b'01111110'
-	retlw b'01100000'
-	retlw b'01111100'
-	retlw b'01111110'
-	retlw b'00000110'
-	retlw b'01111110'
-	retlw b'01111100'
-; six
-	retlw b'00111110'				;	this draws the number 6
-	retlw b'01111110'
-	retlw b'01100000'
-	retlw b'01111100'
-	retlw b'01111110'
-	retlw b'01100110'
-	retlw b'01111110'
-	retlw b'00111100'
-; seven
-	retlw b'01111111'				;	this draws the number 7
-	retlw b'01111111'
-	retlw b'00000011'
-	retlw b'00000110'
-	retlw b'00001100'
-	retlw b'00011000'
-	retlw b'00110000'
-	retlw b'01100000'
-; end
-	retlw b'00111100'				; this draws a smiley face to say we have finished!
-	retlw b'01000010'
-	retlw b'10100101'
-	retlw b'10000001'
-	retlw b'10100101'
-	retlw b'10011001'
-	retlw b'01000010'
-	retlw b'00111100'
+
 
 
 ;*******************************CODIGO PRINCIPAL**********************************
@@ -418,7 +259,7 @@ inicio
 	clrf pc_track			;	clear pc_track (so we start from the top of this data)
     movlw d'01'				;	setup our level counter (start from level
 	movwf level				;	one of course...)
-	movlw d'20'				;	setup our game scrolling speed.
+	movlw d'17'				;	setup our game scrolling speed.
 	movwf speed				;	(the higher the number, the slower the scroll speed)
 	movlw d'50'				;	this prevents us from pushing a button to reset the game straight
 	movwf end_hold			;	away - which allows you to see your score beforehand
@@ -426,9 +267,14 @@ inicio
 	movwf ocho
 	movlw .7
 	movwf const_acelerar
-	movlw .1
-	movwf numero1
-	movwf numero2
+	movlw d'17'				;	setup our game scrolling speed.
+	movwf speed2				;	(the higher the number, the slower the scroll speed)
+	movlw  .4
+	
+	movwf count_carro   ; contador de carro
+	movlw .3
+	movwf count_vida
+	clrf flag_inter
 	movlw b'11111011'
 	movwf	datocarro1
 	movlw b'11110001'
@@ -440,6 +286,7 @@ inicio
 LOOP 
    call dibujar
    call fill_vram
+
    goto LOOP
 ;---------------------------------lazo infinito---------------------------------;*
 ;Si PORTB=0xFF entonces ningun switch esta activado y no hace nada				;*
@@ -448,6 +295,10 @@ dibujar
 
 	movf speed, w					;	We need to set the speed that our game is running at,
 	movwf repeat_frame				;	so we grab that data from speed and copy it to our frame_rate			
+
+	BTFSC flag_inter,0  ; me ayuda a generar el sonido del aumento de velocidad , es cero? continuo
+	Bsf   PORTB,2   ; si es uno la bandera genero del sonido
+
 	lazo	
 			
 
@@ -811,7 +662,7 @@ volver_pantalla
          		movwf PORTD
 
 ;____________________________________________________
-            	movlw b'10001111'
+            	movlw b'11001111'
 				movwf PORTA
 				;call end_data				
 				movlw b'00000000'			;				
@@ -819,9 +670,11 @@ volver_pantalla
 				call retardo					;	
 	 			;movlw b'11111111'
          		movwf PORTD
-				
-	
+
+
 goto inicio
+
+
 
 verificar_carro
 
@@ -849,13 +702,27 @@ continuar
 	return					;	and finally, return back to the main program!
 
 inter
-	
-	
-	movf const_acelerar,w
-     movwf speed
-	bcf INTCON,INTF
+
+		movf const_acelerar, w					;	We need to set the speed that our game is running at,
+	movwf speed				;	so we grab that data from speed and copy it to our frame_rate			
+	bsf flag_inter,0
+
+	Bsf   PORTB,2
+	bcf INTCON,INTF  ;
 	retfie ; Return from interrupt routine
 
+aumentar_nivel
+	bcf STATUS,0
+	rlf level, 1;	now we have made it to the next level
+	movlw  .4
+	movwf count_carro   ; contador de carro	
+	bsf PORTA,5
+	call retardo
+	btfsc level, 3		;	have we reached the end of the game yet? if yes then:
+	goto volver_pantalla
+	decf speed, 1
+
+	return
 
 go_right  ;me guarda los datos de la nueva posicion del carro a la derecha
 	
@@ -867,6 +734,14 @@ go_right  ;me guarda los datos de la nueva posicion del carro a la derecha
 	movwf	datocarro3
 	movlw b'11110101' 
 	movwf	datocarro4
+	BTFSS	level,1
+	movlw .17	
+	BTFSS	level,2
+	movlw .16	
+	BTFSS	level,3
+	movlw .15	
+	movwf speed				;	setup our game scrolling speed.
+	clrf flag_inter
 return
 
 go_left; me guarda los datos de la nueva posicion del carro a la izquierda
@@ -878,6 +753,15 @@ go_left; me guarda los datos de la nueva posicion del carro a la izquierda
 	movwf	datocarro3
 	movlw b'10101111' 
 	movwf	datocarro4
+
+	BTFSS	level,1
+	movlw .17	
+	BTFSS	level,2
+	movlw .16	
+	BTFSS	level,3
+	movlw .15	
+	movwf speed				
+	clrf flag_inter
 	return
 
 check_colision
@@ -917,8 +801,13 @@ check_colision
 chocado						;	We come here if we have hit a wall or we complete the game
 	call retardo
 	Bsf   PORTB,3
-	
-	goto volver_pantalla			;
+
+	goto volver_pantalla
+
+
+loop3
+	nop
+	goto loop3
 
 
 fill_vram
