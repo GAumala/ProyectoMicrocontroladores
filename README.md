@@ -27,7 +27,38 @@ display.
 
 ## Diagrama de Flujo
 
+![Diagrama Main](diagramas/diagrama_main.png)
+
+![Diagrama 1](diagramas/diagrama1.png)
+
+![Diagrama 2](diagramas/diagrama2.png)
+
+![Diagrama 3](diagramas/diagrama3.png)
+
+![Diagrama 4](diagramas/diagrama4.png)
+
+![Diagrama 5](diagramas/diagrama5.png)
+
+![Diagrama 6](diagramas/diagrama6.png)
+
+
 ## Descripción del algoritmo o estrategia utilizada
+
+La estrategia principal consiste en dividir el problema en 3 partes, cada pic se
+enfoca en una parte. Hay un pic para los efectos de sonido, otro pic para
+mostrar datos en el display, y otro que contiene el estado del juego y controla
+la matriz de puntos. El programa principal sigue estos pasos:
+
+1) Declara las variables a utilizar en `CBLOCK`, setea los modos de operación de
+cada puerto y configura los registros de interrupciones.
+2) inicializa variables que controlan el estado de la matriz de puntos y otras mas
+que contienen el estado del juego.
+3) En cada iteración del lazo infinito llena la matriz de led en base al estado
+actual de las variables declaradas en `CBLOCK` y se cambia la posicion del
+jugador en una unidad. 
+4) Con las interrupciones generadas por los botones cambian las variables de
+estado del juego.  durante ciertos eventos, se activan los otros pic para 
+generar efectos de sonido o modificar los display.
 
 ## Programa del PIC16F887
 
